@@ -5,6 +5,7 @@ import ArrowButton, {Arrow} from "@/component/utils/ArrowButton";
 import PartnerMarquee from "@/component/utils/PartnerMarquee";
 import ProductCarousel, {ProductCarouselControls} from "@/component/utils/ProductCarousel";
 import Image from "next/image";
+import Link from "next/link";
 import {useCallback, useState} from "react";
 import '@/resources/css/main.css'
 
@@ -99,10 +100,10 @@ export default function Home() {
                         and to be a partner that grows together with our customers.
 
 
-                        <div className={'next_button'}>
-                            <div className={'next_button_text'} >LEARN MORE</div>
+                        <Link href="/about" className="next_button">
+                            <div className="next_button_text">LEARN MORE</div>
                             <ArrowButton/>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -167,10 +168,10 @@ export default function Home() {
                             onControlsReady={handleCarouselControlsReady}
                         />
 
-                        <div className={'next_button'}>
-                            <div className={'next_button_text'}>EXPLORE MORE</div>
+                        <Link href="/products" className="next_button">
+                            <div className="next_button_text">EXPLORE MORE</div>
                             <ArrowButton/>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </div>
