@@ -3,13 +3,25 @@
 import Spline from "@splinetool/react-spline";
 import ArrowButton, {Arrow} from "@/component/utils/ArrowButton";
 import PartnerMarquee from "@/component/utils/PartnerMarquee";
+import ProductCarousel, {ProductCarouselControls} from "@/component/utils/ProductCarousel";
 import Image from "next/image";
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useState} from "react";
 import '@/resources/css/main.css'
 
+const INITIAL_CAROUSEL_CONTROLS: ProductCarouselControls = {
+    handlePrev: () => {},
+    handleNext: () => {},
+    isAtStart: true,
+    isAtEnd: false,
+};
+
 export default function Home() {
-    // 현재 몇 번째 슬라이드를 보고 있는지 저장하는 상태 (0부터 시작)
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [carouselControls, setCarouselControls] =
+        useState<ProductCarouselControls>(INITIAL_CAROUSEL_CONTROLS);
+    const handleCarouselControlsReady = useCallback(
+        (controls: ProductCarouselControls) => setCarouselControls(controls),
+        [],
+    );
 
     const images = [
         {src: '/model/model1.png', alt: 'Product 1'},
@@ -29,72 +41,6 @@ export default function Home() {
         {src: '/partner/partner6.svg', alt: 'partner 6'},
         {src: '/partner/partner7.svg', alt: 'partner 7'},
     ];
-
-    const SECTION_PADDING_X = 210;
-    const VISIBLE_COUNT = 2.5;
-    const GAP_RATIO = 0.1;
-    const carouselRef = useRef<HTMLDivElement>(null);
-    const [availableAreaWidth, setAvailableAreaWidth] = useState(0);
-    const [carouselWidth, setCarouselWidth] = useState(0);
-    const [cardWidth, setCardWidth] = useState(320);
-    const [cardGap, setCardGap] = useState(32);
-    const slideStep = cardWidth + cardGap;
-
-    const {translateX, isAtStart, isAtEnd} = useMemo(() => {
-        if (slideStep <= 0 || carouselWidth <= 0) {
-            return {translateX: 0, isAtStart: true, isAtEnd: true};
-        }
-
-        // 마지막: 왼쪽 2장 전체 노출 + 오른쪽 0.5칸 빈 공간
-        const maxTranslate = Math.max(0, (images.length - 2) * slideStep);
-        const offset = Math.min(currentIndex * slideStep, maxTranslate);
-
-        return {
-            translateX: offset,
-            isAtStart: currentIndex <= 0,
-            isAtEnd: offset >= maxTranslate - 1,
-        };
-    }, [currentIndex, images.length, cardWidth, cardGap, carouselWidth, slideStep]);
-
-    useEffect(() => {
-        const el = carouselRef.current;
-        if (!el) return;
-
-        const updateMetrics = () => {
-            const {left} = el.getBoundingClientRect();
-            const availableWidth = window.innerWidth - left;
-            if (availableWidth <= 0) return;
-
-            const size = availableWidth / (VISIBLE_COUNT + 2 * GAP_RATIO);
-            const gap = size * GAP_RATIO;
-            const viewportWidth = size * VISIBLE_COUNT + gap * 2;
-
-            setAvailableAreaWidth(availableWidth);
-            setCarouselWidth(viewportWidth);
-            setCardWidth(size);
-            setCardGap(gap);
-        };
-
-        updateMetrics();
-        const resizeObserver = new ResizeObserver(updateMetrics);
-        resizeObserver.observe(el);
-        window.addEventListener('resize', updateMetrics);
-
-        return () => {
-            resizeObserver.disconnect();
-            window.removeEventListener('resize', updateMetrics);
-        };
-    }, []);
-
-    const handlePrev = () => {
-        if (isAtStart) return;
-        setCurrentIndex((prev) => Math.max(0, prev - 1));
-    };
-
-    const handleNext = () => {
-        if (isAtEnd) return;
-        setCurrentIndex((prev) => prev + 1);
-    };
 
     return (
         <div>
@@ -179,89 +125,47 @@ export default function Home() {
                         <div className={'c_button'}>
                             <button
                                 type="button"
-                                onClick={handlePrev}
-                                disabled={isAtStart}
+                                onClick={carouselControls.handlePrev}
+                                disabled={carouselControls.isAtStart}
                                 aria-label="이전 제품"
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    cursor: isAtStart ? 'default' : 'pointer',
+                                    cursor: carouselControls.isAtStart ? 'default' : 'pointer',
                                     padding: 0,
                                     display: 'flex',
                                     alignItems: 'center',
-                                    opacity: isAtStart ? 0.25 : 1,
+                                    opacity: carouselControls.isAtStart ? 0.25 : 1,
                                 }}
                             >
-                                <CarouselNavArrow direction="left" disabled={isAtStart}/>
+                                <CarouselNavArrow direction="left" disabled={carouselControls.isAtStart}/>
                             </button>
                             <button
                                 type="button"
-                                onClick={handleNext}
-                                disabled={isAtEnd}
+                                onClick={carouselControls.handleNext}
+                                disabled={carouselControls.isAtEnd}
                                 aria-label="다음 제품"
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    cursor: isAtEnd ? 'default' : 'pointer',
+                                    cursor: carouselControls.isAtEnd ? 'default' : 'pointer',
                                     padding: 0,
                                     display: 'flex',
                                     alignItems: 'center',
-                                    opacity: isAtEnd ? 0.25 : 1,
+                                    opacity: carouselControls.isAtEnd ? 0.25 : 1,
                                 }}
                             >
-                                <CarouselNavArrow direction="right" disabled={isAtEnd}/>
+                                <CarouselNavArrow direction="right" disabled={carouselControls.isAtEnd}/>
                             </button>
                         </div>
                     </div>
 
 
                     <div style={{fontSize: 20, lineHeight: 2, fontWeight: 300, minWidth: 0, paddingTop : 20}}>
-                        <div
-                            ref={carouselRef}
-                            style={{
-                                width: availableAreaWidth > 0 ? availableAreaWidth : '100%',
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: carouselWidth > 0 ? carouselWidth : '100%',
-                                    overflow: 'hidden',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        gap: cardGap,
-                                        transform: `translateX(-${translateX}px)`,
-                                        transition: 'transform 0.45s ease',
-                                    }}
-                                >
-                                    {images.map((image) => (
-                                        <div
-                                            key={image.src}
-                                            style={{
-                                                width: cardWidth,
-                                                height: cardWidth,
-                                                flexShrink: 0,
-                                                position: 'relative',
-                                                background: '#e8e8e8',
-                                            }}
-                                        >
-                                            <Image
-                                                src={image.src}
-                                                alt={image.alt}
-                                                fill
-                                                sizes="(max-width: 768px) 40vw, 28vw"
-                                                style={{objectFit: 'cover'}}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                        <ProductCarousel
+                            images={images}
+                            onControlsReady={handleCarouselControlsReady}
+                        />
 
                         <div className={'next_button'}>
                             <div className={'next_button_text'}>EXPLORE MORE</div>
