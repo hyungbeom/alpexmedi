@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {createInquiry, getInquiries} from '@/lib/inquiries';
+import {createInquiry, getInquiries, InquiryStorageError} from '@/lib/inquiries';
 import type {CreateInquiryInput} from '@/types/inquiry';
 
 function validateBody(body: unknown): CreateInquiryInput | null {
@@ -86,7 +86,17 @@ export async function POST(request: Request) {
         );
     }
 
-    const inquiry = await createInquiry(input);
+    let inquiry;
+
+    try {
+        inquiry = await createInquiry(input);
+    } catch (error) {
+        if (error instanceof InquiryStorageError) {
+            return NextResponse.json({error: error.message}, {status: 503});
+        }
+
+        throw error;
+    }
 
     return NextResponse.json(
         {
