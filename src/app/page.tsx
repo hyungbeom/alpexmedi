@@ -73,7 +73,7 @@ export default function Home() {
                     </div>
                 </div>
                 <Spline
-                    scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode"
+                    scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode?v=20260525"
                 />
             </div>
 
