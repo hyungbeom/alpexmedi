@@ -1,8 +1,10 @@
 'use client';
 
-import Image from 'next/image';
+import Link from 'next/link';
 import {forwardRef} from 'react';
 import styles from './ProductDetailSection.module.css';
+
+const HERO_IMAGE = '/item/item1.png';
 
 export type ProductDetailData = {
     brand: string;
@@ -66,42 +68,47 @@ const ProductDetailSection = forwardRef<HTMLElement, ProductDetailSectionProps>(
                 <div className={styles.header}>
                     <p className={styles.brand}>{data.brand}</p>
                     <h2 className={styles.title}>
-                        <span className={styles.titleBold}>{data.titleBold}</span>{' '}
-                        <span>{data.titleRegular}</span>
+                        <span className={styles.titleBold}>{data.titleBold}</span>
+                        <span className={styles.titleRegular}>{data.titleRegular}</span>
                     </h2>
                     <div className={styles.divider}/>
-                    <button type="button" className={styles.detailLink}>
+                    <Link
+                        href={{
+                            pathname: '/product',
+                            query: {
+                                name: data.titleBold,
+                                subtitle: data.titleRegular,
+                            },
+                        }}
+                        className={styles.detailLink}
+                    >
                         상세보기
-                    </button>
+                    </Link>
                 </div>
 
                 <div className={styles.hero}>
-                    <span className={`${styles.corner} ${styles.cornerTl}`}/>
-                    <span className={`${styles.corner} ${styles.cornerTr}`}/>
-                    <span className={`${styles.corner} ${styles.cornerBl}`}/>
-                    <span className={`${styles.corner} ${styles.cornerBr}`}/>
-
                     <div className={styles.heroImageWrap}>
-                        <Image
-                            src={data.heroImage}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={HERO_IMAGE}
                             alt={data.titleBold}
-                            fill
                             className={styles.heroImage}
-                            sizes="(max-width: 767px) 90vw, 560px"
-                            priority
                         />
-                        <p className={styles.heroOverlay}>{data.heroOverlay}</p>
+                        <div className={styles.heroGradient} aria-hidden/>
+                        {data.heroOverlay ? (
+                            <p className={styles.heroOverlay}>{data.heroOverlay}</p>
+                        ) : null}
                     </div>
                 </div>
 
                 <div className={styles.middle}>
-                    <button type="button" className={styles.inquiryButton}>
+                    <Link href="/contact" className={styles.inquiryButton}>
                         문의하기
-                    </button>
+                    </Link>
                     <p className={styles.longDescription}>{data.longDescription}</p>
                 </div>
 
-                <ul className={styles.features}>
+                <ul className={styles.features} style={{paddingTop : 50}}>
                     {data.features.map((feature) => (
                         <li key={feature.label} className={styles.featureCard}>
                             <span className={styles.featureIcon}>

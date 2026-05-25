@@ -132,54 +132,56 @@ export default function ProductsPage() {
     }, [selectedProductId]);
 
     return (
-        <section className={styles.page}>
-            <h1 className={styles.label}>PRODUCT</h1>
+        <>
+            <section className={styles.page}>
+                <h1 className={styles.label}>PRODUCT</h1>
 
-            <nav className={styles.filters} aria-label="제품 카테고리">
-                {FILTERS.map((filter) => (
-                    <button
-                        key={filter}
-                        type="button"
-                        className={`${styles.filter} ${
-                            activeFilter === filter ? styles.filterActive : ''
-                        }`}
-                        onClick={() => setActiveFilter(filter)}
-                    >
-                        {filter}
-                    </button>
-                ))}
-            </nav>
-
-            <ul className={styles.grid}>
-                {filteredProducts.map((product) => (
-                    <li key={product.id}>
+                <nav className={styles.filters} aria-label="제품 카테고리">
+                    {FILTERS.map((filter) => (
                         <button
+                            key={filter}
                             type="button"
-                            className={`${styles.card} ${
-                                selectedProductId === product.id ? styles.cardSelected : ''
+                            className={`${styles.filter} ${
+                                activeFilter === filter ? styles.filterActive : ''
                             }`}
-                            onClick={() => handleCardClick(product.id)}
-                            aria-expanded={selectedProductId === product.id}
+                            onClick={() => setActiveFilter(filter)}
                         >
-                            <div className={styles.imageWrap}>
-                                <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    fill
-                                    className={styles.image}
-                                    sizes="(max-width: 767px) 45vw, (max-width: 1023px) 45vw, 25vw"
-                                />
-                            </div>
-                            <span className={styles.name}>{product.name}</span>
-                            <span className={styles.description}>{product.description}</span>
+                            {filter}
                         </button>
-                    </li>
-                ))}
-            </ul>
+                    ))}
+                </nav>
+
+                <ul className={styles.grid}>
+                    {filteredProducts.map((product) => (
+                        <li key={product.id}>
+                            <button
+                                type="button"
+                                className={`${styles.card} ${
+                                    selectedProductId === product.id ? styles.cardSelected : ''
+                                }`}
+                                onClick={() => handleCardClick(product.id)}
+                                aria-expanded={selectedProductId === product.id}
+                            >
+                                <div className={styles.imageWrap}>
+                                    <Image
+                                        src={product.image}
+                                        alt={product.name}
+                                        fill
+                                        className={styles.image}
+                                        sizes="(max-width: 767px) 45vw, (max-width: 1023px) 45vw, 25vw"
+                                    />
+                                </div>
+                                <span className={styles.name}>{product.name}</span>
+                                <span className={styles.description}>{product.description}</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </section>
 
             {selectedProduct && (
                 <ProductDetailSection ref={detailRef} data={selectedProduct.detail}/>
             )}
-        </section>
+        </>
     );
 }

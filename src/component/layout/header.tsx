@@ -10,7 +10,7 @@ const NAV_ITEMS = [
     {label: 'ABOUT', href: '/about'},
     {label: 'PRODUCTS', href: '/products'},
     {label: 'BOARD', href: '/board'},
-    {label: 'CONTACT', href: '/contact'},
+    {label: 'CONTACT US', href: '/contact'},
 ] as const;
 
 const TABLET_BREAKPOINT = 1024;
@@ -71,6 +71,7 @@ export default function Header() {
     }, [isMenuOpen, isCompact]);
 
     return (
+        <div className={styles.headerShell}>
         <header ref={headerRef} className={styles.header}>
             <Link href="/" onClick={closeMenu}>
                 <Image
@@ -139,5 +140,6 @@ export default function Header() {
                 </nav>
             )}
         </header>
+        </div>
     );
 }
