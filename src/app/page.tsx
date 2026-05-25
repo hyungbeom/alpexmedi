@@ -44,7 +44,7 @@ export default function Home() {
 
     return (
         <div>
-            <div style={{height: '100dvh'}}>
+            <div style={{height: '100dvh', position: 'relative'}}>
 
                 <div className={'main_container'}>
                     <div className={'title_1'}> medical service provider</div>
@@ -72,9 +72,11 @@ export default function Home() {
                         <div>MEDICAL</div>
                     </div>
                 </div>
-                <Spline
-                    scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode?v=20260525"
-                />
+                <div className="heroSpline">
+                    <Spline
+                        scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode?v=20260525"
+                    />
+                </div>
             </div>
 
             <div className={'section1_container'}>
