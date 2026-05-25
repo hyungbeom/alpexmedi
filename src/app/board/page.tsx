@@ -1,17 +1,16 @@
+import {Suspense} from 'react';
 import BoardClient from './BoardClient';
 import {getInquiries} from '@/lib/inquiries';
+import {toListItem} from '@/types/inquiry';
 
 export const dynamic = 'force-dynamic';
 
 export default async function BoardPage() {
     const inquiries = await getInquiries();
 
-    const listItems = inquiries.map(({id, title, author, createdAt}) => ({
-        id,
-        title,
-        author,
-        createdAt,
-    }));
-
-    return <BoardClient initialInquiries={listItems}/>;
+    return (
+        <Suspense fallback={null}>
+            <BoardClient initialInquiries={inquiries.map(toListItem)}/>
+        </Suspense>
+    );
 }

@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import {createInquiry, getInquiries, InquiryStorageError} from '@/lib/inquiries';
+import {toListItem} from '@/types/inquiry';
 import type {CreateInquiryInput} from '@/types/inquiry';
 
 function validateBody(body: unknown): CreateInquiryInput | null {
@@ -7,7 +8,8 @@ function validateBody(body: unknown): CreateInquiryInput | null {
         return null;
     }
 
-    const {title, author, email, phone, content} = body as Record<string, unknown>;
+    const record = body as Record<string, unknown>;
+    const {title, author, email, phone, content, isSecret, password} = record;
 
     if (
         typeof title !== 'string' ||
@@ -24,6 +26,9 @@ function validateBody(body: unknown): CreateInquiryInput | null {
     const trimmedContent = content.trim();
     const trimmedPhone =
         typeof phone === 'string' && phone.trim() ? phone.trim() : undefined;
+    const secret = isSecret === true;
+    const trimmedPassword =
+        typeof password === 'string' ? password.trim() : '';
 
     if (
         !trimmedTitle ||
@@ -43,12 +48,18 @@ function validateBody(body: unknown): CreateInquiryInput | null {
         return null;
     }
 
+    if (secret && (trimmedPassword.length < 4 || trimmedPassword.length > 32)) {
+        return null;
+    }
+
     return {
         title: trimmedTitle,
         author: trimmedAuthor,
         email: trimmedEmail,
         phone: trimmedPhone,
         content: trimmedContent,
+        isSecret: secret,
+        password: secret ? trimmedPassword : undefined,
     };
 }
 
@@ -56,12 +67,7 @@ export async function GET() {
     const inquiries = await getInquiries();
 
     return NextResponse.json({
-        inquiries: inquiries.map(({id, title, author, createdAt}) => ({
-            id,
-            title,
-            author,
-            createdAt,
-        })),
+        inquiries: inquiries.map(toListItem),
     });
 }
 
@@ -81,32 +87,30 @@ export async function POST(request: Request) {
 
     if (!input) {
         return NextResponse.json(
-            {error: '입력값을 확인해 주세요.'},
+            {error: '입력값을 확인해 주세요. 비밀글은 비밀번호 4~32자가 필요합니다.'},
             {status: 400},
         );
     }
 
-    let inquiry;
-
     try {
-        inquiry = await createInquiry(input);
+        const inquiry = await createInquiry(input);
+
+        return NextResponse.json(
+            {inquiry: toListItem(inquiry)},
+            {status: 201},
+        );
     } catch (error) {
         if (error instanceof InquiryStorageError) {
             return NextResponse.json({error: error.message}, {status: 503});
         }
 
+        if (error instanceof Error && error.message === 'INVALID_SECRET_PASSWORD') {
+            return NextResponse.json(
+                {error: '비밀글 비밀번호는 4~32자로 입력해 주세요.'},
+                {status: 400},
+            );
+        }
+
         throw error;
     }
-
-    return NextResponse.json(
-        {
-            inquiry: {
-                id: inquiry.id,
-                title: inquiry.title,
-                author: inquiry.author,
-                createdAt: inquiry.createdAt,
-            },
-        },
-        {status: 201},
-    );
 }

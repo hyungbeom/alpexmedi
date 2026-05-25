@@ -102,7 +102,7 @@ const ProductDetailSection = forwardRef<HTMLElement, ProductDetailSectionProps>(
                 </div>
 
                 <div className={styles.middle}>
-                    <Link href="/contact" className={styles.inquiryButton}>
+                    <Link href="/board?write=1" className={styles.inquiryButton}>
                         문의하기
                     </Link>
                     <p className={styles.longDescription}>{data.longDescription}</p>

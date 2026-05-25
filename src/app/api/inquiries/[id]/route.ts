@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import {getInquiryById} from '@/lib/inquiries';
+import {toPublicInquiry} from '@/types/inquiry';
 
 type RouteContext = {
     params: Promise<{id: string}>;
@@ -16,5 +17,17 @@ export async function GET(_request: Request, context: RouteContext) {
         );
     }
 
-    return NextResponse.json({inquiry});
+    if (inquiry.isSecret) {
+        return NextResponse.json({
+            requiresPassword: true,
+            inquiry: {
+                id: inquiry.id,
+                title: inquiry.title,
+                createdAt: inquiry.createdAt,
+                isSecret: true,
+            },
+        });
+    }
+
+    return NextResponse.json({inquiry: toPublicInquiry(inquiry)});
 }

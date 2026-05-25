@@ -1,11 +1,9 @@
 'use client';
 
-import {FormEvent, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import {FormEvent, useEffect, useRef, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
 import styles from './board.module.css';
-import type {Inquiry} from '@/types/inquiry';
-
-type InquiryListItem = Pick<Inquiry, 'id' | 'title' | 'author' | 'createdAt'>;
+import type {InquiryListItem, PublicInquiry} from '@/types/inquiry';
 
 type BoardClientProps = {
     initialInquiries: InquiryListItem[];
@@ -17,6 +15,9 @@ type FormState = {
     email: string;
     phone: string;
     content: string;
+    isSecret: boolean;
+    password: string;
+    passwordConfirm: string;
 };
 
 const EMPTY_FORM: FormState = {
@@ -25,6 +26,9 @@ const EMPTY_FORM: FormState = {
     email: '',
     phone: '',
     content: '',
+    isSecret: false,
+    password: '',
+    passwordConfirm: '',
 };
 
 function formatDate(iso: string) {
@@ -35,34 +39,93 @@ function formatDate(iso: string) {
     }).format(new Date(iso));
 }
 
+function shouldOpenWriteForm(searchParams: URLSearchParams) {
+    const write = searchParams.get('write');
+    return write === '1' || write === 'true';
+}
+
 export default function BoardClient({initialInquiries}: BoardClientProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const formPanelRef = useRef<HTMLDivElement>(null);
     const [inquiries, setInquiries] = useState(initialInquiries);
-    const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(() =>
+        shouldOpenWriteForm(searchParams),
+    );
     const [form, setForm] = useState<FormState>(EMPTY_FORM);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formError, setFormError] = useState('');
     const [formSuccess, setFormSuccess] = useState('');
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+    const [selectedInquiry, setSelectedInquiry] = useState<PublicInquiry | null>(null);
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
     const [detailError, setDetailError] = useState('');
+    const [requiresPassword, setRequiresPassword] = useState(false);
+    const [unlockPassword, setUnlockPassword] = useState('');
+    const [isUnlocking, setIsUnlocking] = useState(false);
+    const [unlockError, setUnlockError] = useState('');
 
-    const updateField = (field: keyof FormState, value: string) => {
+    useEffect(() => {
+        if (!shouldOpenWriteForm(searchParams)) {
+            return;
+        }
+
+        setShowForm(true);
+
+        const timer = window.setTimeout(() => {
+            formPanelRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }, 100);
+
+        return () => window.clearTimeout(timer);
+    }, [searchParams]);
+
+    const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
         setForm((prev) => ({...prev, [field]: value}));
+    };
+
+    const resetDetail = () => {
+        setSelectedId(null);
+        setSelectedInquiry(null);
+        setDetailError('');
+        setRequiresPassword(false);
+        setUnlockPassword('');
+        setUnlockError('');
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setFormError('');
         setFormSuccess('');
+
+        if (form.isSecret) {
+            if (form.password.length < 4 || form.password.length > 32) {
+                setFormError('비밀번호는 4~32자로 입력해 주세요.');
+                return;
+            }
+            if (form.password !== form.passwordConfirm) {
+                setFormError('비밀번호 확인이 일치하지 않습니다.');
+                return;
+            }
+        }
+
         setIsSubmitting(true);
 
         try {
             const response = await fetch('/api/inquiries', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(form),
+                body: JSON.stringify({
+                    title: form.title,
+                    author: form.author,
+                    email: form.email,
+                    phone: form.phone,
+                    content: form.content,
+                    isSecret: form.isSecret,
+                    password: form.isSecret ? form.password : undefined,
+                }),
             });
 
             const data = await response.json();
@@ -73,7 +136,11 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
             }
 
             setForm(EMPTY_FORM);
-            setFormSuccess('문의가 등록되었습니다. 빠른 시일 내에 답변드리겠습니다.');
+            setFormSuccess(
+                form.isSecret
+                    ? '비밀글이 등록되었습니다. 목록에서 제목을 누르고 비밀번호를 입력해 확인할 수 있습니다.'
+                    : '문의가 등록되었습니다. 빠른 시일 내에 답변드리겠습니다.',
+            );
             setShowForm(false);
 
             if (data.inquiry) {
@@ -88,21 +155,22 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
         }
     };
 
-    const openDetail = async (id: string) => {
-        if (selectedId === id) {
-            setSelectedId(null);
-            setSelectedInquiry(null);
-            setDetailError('');
+    const openDetail = async (item: InquiryListItem) => {
+        if (selectedId === item.id) {
+            resetDetail();
             return;
         }
 
-        setSelectedId(id);
+        setSelectedId(item.id);
         setSelectedInquiry(null);
         setDetailError('');
+        setRequiresPassword(false);
+        setUnlockPassword('');
+        setUnlockError('');
         setIsLoadingDetail(true);
 
         try {
-            const response = await fetch(`/api/inquiries/${id}`);
+            const response = await fetch(`/api/inquiries/${item.id}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -110,11 +178,48 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
                 return;
             }
 
-            setSelectedInquiry(data.inquiry as Inquiry);
+            if (data.requiresPassword) {
+                setRequiresPassword(true);
+                return;
+            }
+
+            setSelectedInquiry(data.inquiry as PublicInquiry);
         } catch {
             setDetailError('문의 내용을 불러오지 못했습니다.');
         } finally {
             setIsLoadingDetail(false);
+        }
+    };
+
+    const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (!selectedId) return;
+
+        setUnlockError('');
+        setIsUnlocking(true);
+
+        try {
+            const response = await fetch(`/api/inquiries/${selectedId}/unlock`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({password: unlockPassword}),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setUnlockError(data.error ?? '비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            setSelectedInquiry(data.inquiry as PublicInquiry);
+            setRequiresPassword(false);
+            setUnlockPassword('');
+        } catch {
+            setUnlockError('비밀번호 확인 중 오류가 발생했습니다.');
+        } finally {
+            setIsUnlocking(false);
         }
     };
 
@@ -125,6 +230,7 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
                     <h1 className={styles.label}>BOARD</h1>
                     <p className={styles.description}>
                         제품 및 서비스에 대한 문의를 남겨 주시면 확인 후 연락드리겠습니다.
+                        비밀글은 작성 시 설정한 비밀번호로만 열람할 수 있습니다.
                     </p>
                 </div>
                 <button
@@ -143,7 +249,7 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
             </div>
 
             {showForm && (
-                <div className={styles.formPanel}>
+                <div ref={formPanelRef} className={styles.formPanel}>
                     <h2 className={styles.formTitle}>문의 작성</h2>
 
                     {formError && (
@@ -214,6 +320,69 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
                         </div>
 
                         <div className={`${styles.field} ${styles.fieldFull}`}>
+                            <label className={styles.checkboxLabel}>
+                                <input
+                                    type="checkbox"
+                                    checked={form.isSecret}
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        updateField('isSecret', checked);
+                                        if (!checked) {
+                                            updateField('password', '');
+                                            updateField('passwordConfirm', '');
+                                        }
+                                    }}
+                                />
+                                <span>비밀글로 작성</span>
+                            </label>
+                            <p className={styles.fieldHint}>
+                                비밀글은 목록에만 표시되며, 비밀번호를 아는 분만 내용을
+                                확인할 수 있습니다.
+                            </p>
+                        </div>
+
+                        {form.isSecret && (
+                            <>
+                                <div className={styles.field}>
+                                    <label htmlFor="inquiry-password">비밀번호</label>
+                                    <input
+                                        id="inquiry-password"
+                                        name="password"
+                                        type="password"
+                                        required
+                                        minLength={4}
+                                        maxLength={32}
+                                        value={form.password}
+                                        onChange={(e) =>
+                                            updateField('password', e.target.value)
+                                        }
+                                        placeholder="4~32자"
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <div className={styles.field}>
+                                    <label htmlFor="inquiry-password-confirm">
+                                        비밀번호 확인
+                                    </label>
+                                    <input
+                                        id="inquiry-password-confirm"
+                                        name="passwordConfirm"
+                                        type="password"
+                                        required
+                                        minLength={4}
+                                        maxLength={32}
+                                        value={form.passwordConfirm}
+                                        onChange={(e) =>
+                                            updateField('passwordConfirm', e.target.value)
+                                        }
+                                        placeholder="비밀번호 재입력"
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        <div className={`${styles.field} ${styles.fieldFull}`}>
                             <label htmlFor="inquiry-content">문의 내용</label>
                             <textarea
                                 id="inquiry-content"
@@ -278,8 +447,13 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
                                             <button
                                                 type="button"
                                                 className={styles.rowButton}
-                                                onClick={() => openDetail(item.id)}
+                                                onClick={() => openDetail(item)}
                                             >
+                                                {item.isSecret && (
+                                                    <span className={styles.secretBadge}>
+                                                        🔒
+                                                    </span>
+                                                )}
                                                 <span className={styles.rowTitle}>
                                                     {item.title}
                                                 </span>
@@ -298,49 +472,112 @@ export default function BoardClient({initialInquiries}: BoardClientProps) {
 
                 {selectedId && (
                     <div className={styles.detailPanel}>
-                        <div className={styles.detailHeader}>
-                            {selectedInquiry ? (
-                                <>
+                        {requiresPassword && !selectedInquiry ? (
+                            <>
+                                <div className={styles.detailHeader}>
                                     <div>
+                                        <p className={styles.secretLabel}>비밀글</p>
                                         <h3 className={styles.detailTitle}>
-                                            {selectedInquiry.title}
+                                            비밀번호를 입력해 주세요
                                         </h3>
                                         <p className={styles.detailMeta}>
-                                            {selectedInquiry.author} ·{' '}
-                                            {formatDate(selectedInquiry.createdAt)}
+                                            작성 시 설정한 비밀번호로만 내용을 확인할 수
+                                            있습니다.
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         className={styles.closeDetail}
-                                        onClick={() => {
-                                            setSelectedId(null);
-                                            setSelectedInquiry(null);
-                                        }}
+                                        onClick={resetDetail}
                                     >
                                         닫기
                                     </button>
-                                </>
-                            ) : (
-                                <p className={styles.detailMeta}>
-                                    {isLoadingDetail
-                                        ? '불러오는 중…'
-                                        : detailError || '문의 내용을 불러오지 못했습니다.'}
-                                </p>
-                            )}
-                        </div>
+                                </div>
 
-                        {selectedInquiry && (
+                                <form
+                                    className={styles.unlockForm}
+                                    onSubmit={handleUnlock}
+                                >
+                                    {unlockError && (
+                                        <p className={styles.errorMessage} role="alert">
+                                            {unlockError}
+                                        </p>
+                                    )}
+                                    <div className={styles.field}>
+                                        <label htmlFor="unlock-password">비밀번호</label>
+                                        <input
+                                            id="unlock-password"
+                                            type="password"
+                                            value={unlockPassword}
+                                            onChange={(e) =>
+                                                setUnlockPassword(e.target.value)
+                                            }
+                                            placeholder="비밀번호 입력"
+                                            autoComplete="current-password"
+                                            required
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className={styles.submitButton}
+                                        disabled={isUnlocking}
+                                    >
+                                        {isUnlocking ? '확인 중…' : '내용 보기'}
+                                    </button>
+                                </form>
+                            </>
+                        ) : (
                             <>
-                                <p className={styles.detailContent}>
-                                    {selectedInquiry.content}
-                                </p>
-                                <div className={styles.detailContact}>
-                                    <span>이메일: {selectedInquiry.email}</span>
-                                    {selectedInquiry.phone && (
-                                        <span>연락처: {selectedInquiry.phone}</span>
+                                <div className={styles.detailHeader}>
+                                    {selectedInquiry ? (
+                                        <>
+                                            <div>
+                                                {selectedInquiry.isSecret && (
+                                                    <p className={styles.secretLabel}>
+                                                        비밀글
+                                                    </p>
+                                                )}
+                                                <h3 className={styles.detailTitle}>
+                                                    {selectedInquiry.title}
+                                                </h3>
+                                                <p className={styles.detailMeta}>
+                                                    {selectedInquiry.author} ·{' '}
+                                                    {formatDate(selectedInquiry.createdAt)}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className={styles.closeDetail}
+                                                onClick={resetDetail}
+                                            >
+                                                닫기
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <p className={styles.detailMeta}>
+                                            {isLoadingDetail
+                                                ? '불러오는 중…'
+                                                : detailError ||
+                                                  '문의 내용을 불러오지 못했습니다.'}
+                                        </p>
                                     )}
                                 </div>
+
+                                {selectedInquiry && (
+                                    <>
+                                        <p className={styles.detailContent}>
+                                            {selectedInquiry.content}
+                                        </p>
+                                        <div className={styles.detailContact}>
+                                            <span>이메일: {selectedInquiry.email}</span>
+                                            {selectedInquiry.phone && (
+                                                <span>
+                                                    연락처: {selectedInquiry.phone}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>

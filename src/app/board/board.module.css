@@ -226,7 +226,8 @@
 }
 
 .rowButton {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   border: none;
   background: none;
@@ -317,6 +318,57 @@
   cursor: pointer;
   padding: 0;
   font-weight: 600;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #171717;
+  cursor: pointer;
+}
+
+.checkboxLabel input {
+  width: 18px;
+  height: 18px;
+  accent-color: #9fbcd7;
+  cursor: pointer;
+}
+
+.fieldHint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 300;
+  color: #727272;
+  line-height: 1.5;
+}
+
+.secretBadge {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.secretLabel {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fbcd7;
+}
+
+.unlockForm {
+  margin-top: 24px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.unlockForm .field {
+  margin: 0;
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {

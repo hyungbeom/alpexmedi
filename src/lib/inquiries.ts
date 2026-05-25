@@ -2,6 +2,7 @@ import {promises as fs} from 'fs';
 import path from 'path';
 import {randomUUID} from 'crypto';
 import {head, put} from '@vercel/blob';
+import {hashPassword, verifyPassword} from '@/lib/inquiry-password';
 import type {CreateInquiryInput, Inquiry} from '@/types/inquiry';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -126,14 +127,39 @@ export async function getInquiryById(id: string): Promise<Inquiry | null> {
 
 export async function createInquiry(input: CreateInquiryInput): Promise<Inquiry> {
     const inquiries = await readInquiries();
+    const {password, isSecret, ...rest} = input;
+
     const inquiry: Inquiry = {
         id: randomUUID(),
         createdAt: new Date().toISOString(),
-        ...input,
+        isSecret: Boolean(isSecret),
+        ...rest,
     };
+
+    if (inquiry.isSecret) {
+        if (!password || password.length < 4 || password.length > 32) {
+            throw new Error('INVALID_SECRET_PASSWORD');
+        }
+        inquiry.passwordHash = hashPassword(password);
+    }
 
     inquiries.unshift(inquiry);
     await writeInquiries(inquiries);
 
     return inquiry;
+}
+
+export async function unlockInquiry(
+    id: string,
+    password: string,
+): Promise<Inquiry | null> {
+    const inquiry = await getInquiryById(id);
+
+    if (!inquiry || !inquiry.isSecret || !inquiry.passwordHash) {
+        return null;
+    }
+
+    const isValid = verifyPassword(password, inquiry.passwordHash);
+
+    return isValid ? inquiry : null;
 }
