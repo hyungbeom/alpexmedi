@@ -1,0 +1,124 @@
+.footer {
+  background-color: #000000;
+  color: #a0a0a0;
+  padding: 40px 24px 48px;
+}
+
+.social {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.socialIcon {
+  cursor: pointer;
+}
+
+.info {
+  padding-top: 28px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.company,
+.companyMobile {
+  color: #ffffff;
+}
+
+.companyMobile {
+  margin-bottom: 20px;
+}
+
+.infoBody .infoLine + .infoLine {
+  margin-top: 12px;
+}
+
+.legalDesktop,
+.legalMobile {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.legalBold {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.legalDesktop span:last-child,
+.legalMobile span:last-child {
+  cursor: pointer;
+}
+
+.legalMobile {
+  justify-content: center;
+  margin-top: 36px;
+}
+
+.copyright {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #a0a0a0;
+  text-transform: uppercase;
+}
+
+.desktopRow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .footer {
+    padding: 48px 80px;
+  }
+
+  .social {
+    padding-bottom: 35px;
+  }
+
+  .info {
+    padding-top: 30px;
+    font-size: 16px;
+  }
+
+  .companyMobile,
+  .legalMobile,
+  .copyright {
+    display: none;
+  }
+
+  .desktopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .legalDesktop {
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+
+  .infoBody {
+    padding-top: 50px;
+  }
+
+  .infoBody .infoLine + .infoLine {
+    margin-top: 15px;
+  }
+
+  .infoBody .infoLine:nth-of-type(4) {
+    margin-top: 50px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer {
+    padding: 48px 240px;
+  }
+}

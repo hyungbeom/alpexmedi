@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "@/component/layout/header";
+import { Poppins } from "next/font/google";
+import Footer from "@/component/layout/Footer";
+
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  // 변수명으로 매핑하고 싶다면 variable 설정 (선택사항)
+  variable: "--font-poppins",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +35,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body className={poppins.className}>
+        <Header/>
+        {children}
+        <Footer/>
+      </body>
     </html>
   );
 }

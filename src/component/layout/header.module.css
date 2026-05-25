@@ -1,0 +1,146 @@
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 30px 40px;
+  max-width: 1500;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  align-items: center;
+  z-index: 50;
+}
+
+.nav {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+}
+
+.navLinks {
+  display: flex;
+  gap: 56px;
+  font-size: 16px;
+}
+
+.navLinks span {
+  cursor: pointer;
+}
+
+.lang {
+  display: flex;
+  gap: 28px;
+  padding-left: 76px;
+  font-size: 14px;
+  padding-top: 5px;
+  font-weight: 400;
+}
+
+.lang span {
+  cursor: pointer;
+}
+
+.compactActions {
+  display: none;
+  align-items: center;
+  gap: 20px;
+}
+
+.langCompact {
+  font-size: 15px;
+  font-weight: 500;
+  color: #171717;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.menuButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 26px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.menuButton span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: #171717;
+  border-radius: 1px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.menuButtonOpen span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.menuButtonOpen span:nth-child(2) {
+  opacity: 0;
+}
+
+.menuButtonOpen span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+.mobileMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #f8f8f8;
+  border-top: 1px solid #e8e8e8;
+  padding: 24px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 49;
+}
+
+.mobileMenu span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #171717;
+  cursor: pointer;
+}
+
+.mobileLang {
+  display: flex;
+  gap: 24px;
+  padding-top: 8px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.mobileLang span {
+  cursor: pointer;
+}
+
+@media (max-width: 1023px) {
+  .header {
+    position: relative;
+    max-width: none;
+    height: auto;
+    min-height: 64px;
+    padding: 16px 20px;
+    background-color: #f8f8f8;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .compactActions {
+    display: flex;
+  }
+}
