@@ -1,0 +1,72 @@
+.page {
+  padding: 120px 200px 100px;
+  box-sizing: border-box;
+  min-height: 60vh;
+}
+
+.label {
+  color: #9fbcd7;
+  font-size: 38px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.description {
+  margin: 36px 0 0;
+  font-size: 20px;
+  font-weight: 300;
+  color: #727272;
+  line-height: 1.6;
+  max-width: 640px;
+}
+
+.contactList {
+  margin: 48px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-size: 18px;
+  color: #171717;
+  line-height: 1.5;
+}
+
+.contactKey {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #9fbcd7;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 100px 50px 80px;
+  }
+
+  .label {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 96px 24px 64px;
+  }
+
+  .label {
+    font-size: 28px;
+  }
+
+  .description {
+    font-size: 16px;
+    margin-top: 24px;
+  }
+
+  .contactList {
+    font-size: 16px;
+  }
+}

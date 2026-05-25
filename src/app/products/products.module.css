@@ -1,0 +1,173 @@
+.page {
+  padding: 90px 200px 120px;
+  background-color: #f8f8f8;
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+.label {
+  color: #9fbcd7;
+  font-size: 38px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 36px;
+}
+
+.filter {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: #a0a0a0;
+  cursor: pointer;
+}
+
+.filterActive {
+  color: #171717;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 48px 32px;
+  margin-top: 56px;
+  list-style: none;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardSelected .name,
+.cardSelected .description {
+  color: #171717;
+}
+
+.cardSelected .image {
+  transform: scale(1.1);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: #d9d9d9;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.name {
+  margin: 20px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #ababab;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.description {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: #727272;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+@media (hover: hover) {
+  .card:hover .image,
+  .card:focus-visible .image {
+    transform: scale(1.1);
+  }
+
+  .card:hover .name,
+  .card:hover .description,
+  .card:focus-visible .name,
+  .card:focus-visible .description {
+    color: #171717;
+  }
+}
+
+/* 태블릿 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 70px 50px 100px;
+  }
+
+  .label {
+    font-size: 32px;
+  }
+
+  .filters {
+    margin-top: 28px;
+    gap: 24px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 28px;
+    margin-top: 44px;
+  }
+
+  .name {
+    font-size: 20px;
+  }
+}
+
+/* 모바일 */
+@media (max-width: 767px) {
+  .page {
+    padding: 40px 24px 72px;
+  }
+
+  .label {
+    font-size: 28px;
+  }
+
+  .filters {
+    margin-top: 24px;
+    gap: 20px;
+  }
+
+  .filter {
+    font-size: 16px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+    margin-top: 32px;
+  }
+
+  .name {
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  .description {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+}

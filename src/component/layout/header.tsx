@@ -2,16 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import styles from "./header.module.css";
 
-const NAV_ITEMS = ["ABOUT", "PRODUCTS", "BOARD", "CONTACT"] as const;
+const NAV_ITEMS = [
+    {label: 'ABOUT', href: '/about'},
+    {label: 'PRODUCTS', href: '/products'},
+    {label: 'BOARD', href: '/board'},
+    {label: 'CONTACT', href: '/contact'},
+] as const;
+
 const TABLET_BREAKPOINT = 1024;
 
 export default function Header() {
+    const pathname = usePathname();
     const headerRef = useRef<HTMLElement>(null);
     const [isCompact, setIsCompact] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const closeMenu = () => setIsMenuOpen(false);
+
+    const isActive = (href: string) => {
+        if (href === '/') return pathname === '/';
+        return pathname === href || pathname.startsWith(`${href}/`);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -31,6 +46,10 @@ export default function Header() {
             document.body.style.overflow = "";
         };
     }, [isMenuOpen, isCompact]);
+
+    useEffect(() => {
+        closeMenu();
+    }, [pathname]);
 
     useEffect(() => {
         if (!isMenuOpen || !isCompact) return;
@@ -53,7 +72,7 @@ export default function Header() {
 
     return (
         <header ref={headerRef} className={styles.header}>
-            <Link href="/" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/" onClick={closeMenu}>
                 <Image
                     src="/logo.svg"
                     alt="alpexmedi_logo"
@@ -65,7 +84,15 @@ export default function Header() {
             <nav className={styles.nav}>
                 <div className={styles.navLinks}>
                     {NAV_ITEMS.map((item) => (
-                        <span key={item}>{item}</span>
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`${styles.navLink} ${
+                                isActive(item.href) ? styles.navLinkActive : ''
+                            }`}
+                        >
+                            {item.label}
+                        </Link>
                     ))}
                 </div>
                 <div className={styles.lang}>
@@ -94,9 +121,16 @@ export default function Header() {
             {isCompact && isMenuOpen && (
                 <nav className={styles.mobileMenu} aria-label="모바일 메뉴">
                     {NAV_ITEMS.map((item) => (
-                        <span key={item} onClick={() => setIsMenuOpen(false)}>
-                            {item}
-                        </span>
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`${styles.mobileNavLink} ${
+                                isActive(item.href) ? styles.navLinkActive : ''
+                            }`}
+                            onClick={closeMenu}
+                        >
+                            {item.label}
+                        </Link>
                     ))}
                     <div className={styles.mobileLang}>
                         <span>KR</span>

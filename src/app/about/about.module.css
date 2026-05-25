@@ -1,0 +1,203 @@
+.page {
+  padding: 90px 200px;
+  box-sizing: border-box;
+}
+
+.label {
+  color: #9fbcd7;
+  font-size: 38px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 150px;
+  row-gap: 0;
+  margin-top: 20px;
+  align-items: start;
+}
+
+.brand {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  padding-top: 20px;
+  font-size: 70px;
+  font-weight: 200;
+  line-height: 1.1;
+}
+
+.brandHighlight {
+  display: inline-block;
+  background-color: #003cff;
+  padding: 0 10px;
+  color: #ffffff;
+  margin-right: 10px;
+}
+
+.textCol {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 35px;
+  color: #727272;
+  line-height: 1.5;
+}
+
+.paragraph + .paragraph {
+  margin-top: 100px;
+}
+
+.highlight {
+  color: #003cff;
+}
+
+.bubbles {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  width: 100%;
+  min-height: 340px;
+  margin-top: 40px;
+  overflow: visible;
+}
+
+.bubble1,
+.bubble2 {
+  position: absolute;
+  height: auto;
+  object-fit: contain;
+}
+
+/* L자형 — 우상단 */
+.bubble1 {
+  top: 0;
+  right: 0;
+  width: min(62%, 280px);
+}
+
+/* Y자형 — 좌하단 */
+.bubble2 {
+  bottom: 0;
+  left: 0;
+  width: min(68%, 320px);
+}
+
+/* 태블릿 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 70px 50px;
+  }
+
+  .label {
+    font-size: 32px;
+  }
+
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    margin-top: 16px;
+  }
+
+  .brand,
+  .textCol,
+  .bubbles {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .brand {
+    font-size: 56px;
+    padding-top: 12px;
+  }
+
+  .textCol {
+    font-size: 22px;
+    line-height: 1.6;
+  }
+
+  .paragraph + .paragraph {
+    margin-top: 48px;
+  }
+
+  .bubbles {
+    min-height: 300px;
+    margin-top: 8px;
+    max-width: 100%;
+  }
+
+  .bubble1 {
+    width: min(50%, 240px);
+  }
+
+  .bubble2 {
+    width: min(56%, 280px);
+  }
+}
+
+/* 모바일 */
+@media (max-width: 767px) {
+  .page {
+    padding: 40px 24px 56px;
+    overflow-x: hidden;
+  }
+
+  .label {
+    font-size: 28px;
+  }
+
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin-top: 12px;
+  }
+
+  .brand,
+  .textCol,
+  .bubbles {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .brand {
+    font-size: 40px;
+    padding-top: 8px;
+  }
+
+  .brandHighlight {
+    padding: 0 8px;
+    margin-right: 8px;
+  }
+
+  .textCol {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .paragraph + .paragraph {
+    margin-top: 28px;
+  }
+
+  .bubbles {
+    min-height: 260px;
+    margin-top: 4px;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .bubble1 {
+    top: 0;
+    right: -8px;
+    width: min(54%, 190px);
+  }
+
+  .bubble2 {
+    bottom: -4px;
+    left: -12px;
+    width: min(60%, 210px);
+  }
+}
