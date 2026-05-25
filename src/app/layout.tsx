@@ -36,7 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className={poppins.className}>
-        <Header/>
+        <div className="site-header-wrap">
+          <Header/>
+        </div>
         {children}
         <Footer/>
       </body>

@@ -4,6 +4,7 @@
   left: 0;
   right: 0;
   width: 100%;
+  background-color: #ffffff;
   z-index: 200;
   box-sizing: border-box;
 }
@@ -20,7 +21,6 @@
   justify-content: space-between;
   margin: 0 auto;
   align-items: center;
-  background-color: #ffffff;
 }
 
 .nav {
@@ -203,6 +203,7 @@
 @media (max-width: 1023px) {
   .headerShell {
     position: relative;
+    width: 100%;
   }
 
   .header {
@@ -210,7 +211,6 @@
     height: auto;
     min-height: 48px;
     padding: 10px 16px;
-    background-color: #ffffff;
   }
 
   .mobileMenuTop {

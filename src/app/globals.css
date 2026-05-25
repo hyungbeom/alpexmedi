@@ -91,6 +91,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.site-header-wrap {
+  width: 100%;
+  flex-shrink: 0;
+  background-color: #ffffff;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
