@@ -44,13 +44,17 @@ export default function Home() {
 
     return (
         <div>
-            <div style={{height: '100dvh', position: 'relative'}}>
+            <div className="heroSection">
+                <div className="heroSpline">
+                    <Spline
+                        scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode?v=20260525"
+                    />
+                </div>
 
-                <div className={'main_container'}>
-                    <div className={'title_1'}> medical service provider</div>
-                    <div className={'title_line'}/>
+                <div className="main_container">
+                    <div className="title_1"> medical service provider</div>
+                    <div className="title_line"/>
                     <div className="title_2">
-                        {/* 💻 데스크톱 버전: 모바일에서는 숨겨짐 */}
                         <div className="desktop-text">
                             <div>알펙스메디는 첨단 메디컬 에스테틱 기술을 기반으로</div>
                             <div>아름다움과 건강의 새로운 기준을 제시하는 전문기업입니다.</div>
@@ -58,7 +62,6 @@ export default function Home() {
                             <div>지속적인 혁신을 통해 의료진과 고객 모두에게 더 높은 가치를 제공합니다.</div>
                         </div>
 
-                        {/* 📱 모바일 버전: 데스크톱에서는 숨겨짐 */}
                         <div className="mobile-text">
                             <div>알펙스메디는 첨단 메디컬 에스테틱</div>
                             <div>기술을 기반으로 아름다움과</div>
@@ -67,15 +70,10 @@ export default function Home() {
                             <div>더 높은 가치를 제공합니다.</div>
                         </div>
                     </div>
-                    <div className={'title_3'}>
+                    <div className="title_3">
                         <div>ALPEXMEDI</div>
                         <div>MEDICAL</div>
                     </div>
-                </div>
-                <div className="heroSpline">
-                    <Spline
-                        scene="https://prod.spline.design/hsqPbry4SlBHgozT/scene.splinecode?v=20260525"
-                    />
                 </div>
             </div>
 
